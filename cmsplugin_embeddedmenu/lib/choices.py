@@ -78,65 +78,38 @@ class PageIDsDynamicChoices(DynamicChoice):
 
         return choices
 
-
 class DynamicTemplateChoices(DynamicChoice):
-    path = None
-    exclude = None
-    inlude = None
-    default_file = None
 
     def __init__(self, path=None, include=None,
-                       exclude=None, default_file="default.html",
-                       *args, **kwargs):
+                       exclude=None, *args, **kwargs):
+
         super(DynamicTemplateChoices, self).__init__(self, *args, **kwargs)
         self.path = path
         self.include = include
-        self.exclude = exclude
-        self.default_file = default_file
+        self.exlude = exclude
 
-    def generate(self, *args, **kwargs):
-        choices = list()
-        choices += ( (os.path.join(self.path,self.default_file), "Default"), )
+    def generate(self,*args, **kwargs):
+        choices = set()
         for template_dir in app_template_dirs:
-          results = self.walkdir(os.path.join(template_dir, self.path))
-          if results:
-              choices += results
+          choices |= set(self.walkdir(os.path.join(template_dir, self.path)))
         return choices
 
     def walkdir(self, path=None):
-        output = list()
 
         if not os.path.exists(path):
-            return None
+            return
 
         for root, dirs, files in os.walk(path):
 
             if self.include:
-                include = [item.strip() for item in self.include.split(",")]
-                filtered_file_list = list()
-                for file_item in files :
-                    found = filter(lambda x: x in file_item, include)
-                    if len(found) > 0:
-                        filtered_file_list += (file_item, )
-                files = filtered_file_list
+                files = filter(lambda x: self.include in x, files)
 
-            if self.exclude:
-                exclude = [item.strip() for item in self.exclude.split(",")]
-                filtered_file_list = list()
-                for file_item in files :
-                    found = filter(lambda x: x in file_item, exclude)
-                    if len(found) <= 0:
-                        filtered_file_list += (file_item, )
-                files = filtered_file_list
+            if self.exlude:
+                files = filter(lambda x: not self.exlude in x, files)
 
             for item in files :
-                output += ( (
-                    os.path.join(self.path, item),
+                fragment = os.path.relpath(os.path.join(root, item), path)
+                yield (
+                    os.path.join(self.path, fragment),
                     deslugify(os.path.splitext(item)[0]),
-                ),)
-
-            for item in dirs :
-                output += self.walkdir(os.path.join(root, item))
-
-
-        return output
+                )
