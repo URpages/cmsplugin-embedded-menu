@@ -35,6 +35,7 @@ class MenuPluginSettings(CMSPlugin):
 		choices = DynamicTemplateChoices(
 			path = ApplicationSettings.CONTAINER_TEMPLATE_PATH,
 			include = '.html'),
+		default="default.html",
 		max_length = 256,
 		help_text = _("""Use this template to render the menu container"""))
 
@@ -42,6 +43,7 @@ class MenuPluginSettings(CMSPlugin):
 		choices = DynamicTemplateChoices(
 			path = ApplicationSettings.MENU_TEMPLATE_PATH,
 			include = '.html'),
+		default="default.html",
 		max_length = 256,
 		help_text = _("""Use this template to render a menu branch"""))
 
@@ -49,6 +51,7 @@ class MenuPluginSettings(CMSPlugin):
 		choices = DynamicTemplateChoices(
 			path = ApplicationSettings.ITEM_TEMPLATE_PATH,
 			include = '.html'),
+		default="default.html",
 		max_length = 256,
 		help_text = _("""Use this template to render a leaf(a menu item) of a menu branch."""))
 
